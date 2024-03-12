@@ -10,9 +10,9 @@ export async function buildUrl(query, page) {
       page: page,
       key: API_KEY,
       q: query,
-      IMAGE_TYPE: 'photo',
-      SAFESEARCH: 'true',
-      ORIENTATION: 'horizontal',
+      image_type: 'photo',
+      safesearch: 'true',
+      orientation: 'horizontal',
     },
   });
 
