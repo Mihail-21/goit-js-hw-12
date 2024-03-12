@@ -41,3 +41,7 @@ img {
 body {
   font-family: 'Montserrat', system-ui, sans-serif;
 }
+
+section {
+  padding: 50px 0 90px;
+}

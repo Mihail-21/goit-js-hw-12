@@ -67,25 +67,20 @@
 .gallery {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  padding: 15px;
+  padding: 40px 15px;
   gap: 20px;
 }
 
 @media screen and (min-width: 768px) {
   .gallery {
-    display: grid;
     grid-template-columns: repeat(2, 1fr);
-    padding: 15px;
     gap: 15px;
   }
 }
 
 @media screen and (min-width: 1158px) {
   .gallery {
-    display: grid;
     grid-template-columns: repeat(3, 1fr);
-    padding: 15px;
-    gap: 15px;
   }
 }
 
@@ -140,7 +135,6 @@
   border-style: dashed solid solid dotted;
   border-color: #ff3d00 #ff3d00 transparent #ff3d00;
   border-radius: 50%;
-  /* display: inline-block; */
   position: relative;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
@@ -176,4 +170,31 @@
 
 header > .container {
   padding: 20px 15px;
+}
+
+.btn-more {
+  display: block;
+  margin: 0 auto;
+
+  background-color: rgb(78, 117, 255);
+  border-radius: 8px;
+  width: 125px;
+  height: 40px;
+  border: none;
+
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+
+  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-more:hover {
+  background-color: #6c8cff;
+}
+
+.is-hidden {
+  display: none;
 }

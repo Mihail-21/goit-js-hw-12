@@ -1,25 +1,20 @@
-export function fetchImgs(query) {
-  const refs = {
-    KEYWORD: 'nature',
-    IMAGE_TYPE: 'photo',
-    SAFESEARCH: 'true',
-    ORIENTATION: 'horizontal',
-    API_KEY: '42458886-d6d62fa6987d6f72b0a5e97bb',
-    URL: 'https://pixabay.com/api/',
-  };
+import axios from 'axios';
 
-  const linkWithQuery = `${refs.URL}?key=${refs.API_KEY}&q=${query}&image_type=${refs.IMAGE_TYPE}&safesearch=${refs.SAFESEARCH}&orientation=${refs.ORIENTATION}`;
+export async function buildUrl(query, page) {
+  const API_KEY = '42458886-d6d62fa6987d6f72b0a5e97bb';
+  const URL = 'https://pixabay.com/api/';
 
-  return fetch(linkWithQuery)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(response.status);
-      }
-      return response.json();
-    })
-    .then(data => {
-      if (data && data.hits) {
-        return data;
-      }
-    });
+  const fetchGallery = await axios.get(URL, {
+    params: {
+      per_page: 15,
+      page: page,
+      key: API_KEY,
+      q: query,
+      IMAGE_TYPE: 'photo',
+      SAFESEARCH: 'true',
+      ORIENTATION: 'horizontal',
+    },
+  });
+
+  return fetchGallery.data;
 }

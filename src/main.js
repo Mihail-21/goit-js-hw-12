@@ -4,7 +4,7 @@ import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import { fetchImgs } from './js/pixabay-api.js';
+import { buildUrl } from './js/pixabay-api.js';
 import { renderGallery } from './js/render-functions.js';
 
 const lightbox = new SimpleLightbox('.gallery a', {
@@ -12,17 +12,26 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
-const form = document.querySelector('.form');
-const gallery = document.querySelector('.list');
-const loader = document.querySelector('.loader');
+const refs = {
+  form: document.querySelector('.form'),
+  gallery: document.querySelector('.list'),
+  loader: document.querySelector('.loader'),
+  loadMoreBtn: document.querySelector('.btn-more'),
+};
 
-form.addEventListener('submit', checkForSending);
-loader.style.display = 'none';
+let currentPage = 1;
+let searchQuery = null;
 
-function checkForSending(event) {
+hideLoader();
+hideBtn();
+
+async function fetchRequest(event) {
   event.preventDefault();
 
-  const searchQuery = form.elements.query.value.trim();
+  searchQuery = refs.form.elements.query.value.trim();
+
+  currentPage = 1;
+  refs.gallery.innerHTML = '';
 
   if (searchQuery === '') {
     iziToast.warning({
@@ -38,33 +47,94 @@ function checkForSending(event) {
     return;
   }
 
-  loader.style.display = 'block';
+  showLoader();
 
-  fetchImgs(searchQuery)
-    .then(data => {
-      if (data && data.hits && data.hits.length > 0) {
-        return data;
-      }
-    })
-    .then(data => {
-      renderGallery(data);
-      lightbox.refresh();
-    })
-    .catch(error =>
-      iziToast.error({
+  const data = await buildUrl(searchQuery, currentPage);
+  try {
+    const images = data.hits;
+
+    refs.gallery.innerHTML = renderGallery(images);
+
+    images.length < 15 ? hideBtn() : showBtn();
+
+    lightbox.refresh();
+  } catch {
+    iziToast.error({
+      theme: 'dark',
+      message:
+        'Sorry, there are no images matching your search query. Please try again!',
+      messageColor: '#ffffff',
+      backgroundColor: '#ef4040',
+      position: 'topRight',
+      pauseOnHover: false,
+      progressBarColor: '#b51b1b',
+      timeout: 3000,
+    });
+  } finally {
+    hideLoader();
+
+    refs.form.reset();
+  }
+}
+
+refs.form.addEventListener('submit', fetchRequest);
+refs.loadMoreBtn.addEventListener('click', async () => {
+  try {
+    showLoader();
+
+    const res = await buildUrl(searchQuery, ++currentPage);
+
+    const listItems = document.querySelectorAll('.gallery-item').length;
+
+    refs.gallery.insertAdjacentHTML('beforeend', renderGallery(res.hits));
+
+    const newItems = document.querySelectorAll('.gallery-item');
+
+    if (newItems.length > listItems) {
+      const newlyItems = newItems[listItems];
+
+      newlyItems.scrollIntoView({
+        block: 'start',
+        behavior: 'smooth',
+      });
+    }
+
+    lightbox.refresh();
+
+    if (res.hits.length < 15) {
+      hideBtn();
+
+      iziToast.info({
         theme: 'dark',
-        message:
-          'Sorry, there are no images matching your search query. Please try again!',
+        message: "We're sorry, but you've reached the end of search results.",
         messageColor: '#ffffff',
-        backgroundColor: '#ef4040',
+        backgroundColor: '#1f79ff',
         position: 'topRight',
         pauseOnHover: false,
-        progressBarColor: '#b51b1b',
+        progressBarColor: 'black',
         timeout: 3000,
-      })
-    )
-    .finally(() => {
-      loader.style.display = 'none';
-      form.reset();
-    });
+      });
+    }
+  } catch (error) {
+    throw new Error(error.status);
+  } finally {
+    hideLoader();
+  }
+});
+
+function showBtn() {
+  refs.loadMoreBtn.classList.remove('is-hidden');
 }
+
+function hideBtn() {
+  refs.loadMoreBtn.classList.add('is-hidden');
+}
+
+function showLoader() {
+  refs.loader.style.display = 'block';
+}
+
+function hideLoader() {
+  refs.loader.style.display = 'none';
+}
+/** */
