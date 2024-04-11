@@ -107,13 +107,18 @@ loadMoreBtn.addEventListener('click', async () => {
         theme: 'dark',
         message: "We're sorry, but you've reached the end of search results.",
         messageColor: '#FFFFFF',
-        backgroundColor: '#EF4040',
+        backgroundColor: '#1F79FF',
         position: 'topRight',
         pauseOnHover: false,
         progressBarColor: 'black',
         timeout: 3000,
       });
     }
+    const height = gallery.firstElementChild.getBoundingClientRect().height;
+    scrollBy({
+      behavior: 'smooth',
+      top: height * 2,
+    });
   } catch (error) {
     throw new Error(error.status);
   } finally {
